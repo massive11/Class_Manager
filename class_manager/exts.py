@@ -7,7 +7,7 @@ from flask_wtf import CSRFProtect
 
 db = SQLAlchemy()
 migrate = Migrate()
-login_manager = LoginManager()
+login_manager = LoginManager()  # 实例化登录管理对象
 
 
 def init_extentions(app):
@@ -15,7 +15,8 @@ def init_extentions(app):
     migrate.init_app(app=app, db=db)
     Bootstrap(app)
     # DebugToolbarExtension(app)
-    login_manager.init_app(app)
-    login_manager.login_view = 'auth.login'
+    login_manager.init_app(app)  # 初始化应用
+    login_manager.login_view = 'auth.login'  # 设置用户登录视图函数
     moment = Moment()
+    #  防止csrf注入攻击
     csrf = CSRFProtect()

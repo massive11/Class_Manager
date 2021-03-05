@@ -1,27 +1,34 @@
 from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from config import config
+from flask_login import LoginManager
+from flask_cors import CORS
 
-from APP.blueprints.api.admin import init_api_admin
-from APP.blueprints.api.user import init_api_user
-from exts import init_extentions
-from APP.setting import envs
-from APP.blueprints.auth import init_auth
-from APP.blueprints.home import init_home
-from APP import setting
+app = Flask(__name__)
+db = SQLAlchemy()
+login_manager = LoginManager()
+cors = CORS()
 
 
-def create_app():
-    app = Flask(__name__, template_folder=setting.TEMPLATE_FOLDER)
-    app.config.from_object(envs.get('develop'))
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    init_blueprint(app)
-    init_extentions(app)
+def create_app(config_name):
+    app.config.from_object(config[config_name])
+    config[config_name].init_app(app)
 
+    db.init_app(app)
+    login_manager.init_app(app)
+
+    cors.init_app(app=app, supports_credentials=True)
+
+    from .main import main as main_blueprint
+    app.register_blueprint(main_blueprint)
+
+    from.student import student as student_blueprint
+
+    app.register_blueprint(student_blueprint, url_prefix='/student')
+
+    from .teacher import teacher as teacher_blueprint
+    app.register_blueprint(teacher_blueprint, url_prefix='/teacher')
+
+    from .admin import admin as admin_blueprint
+    app.register_blueprint(admin_blueprint, url_prefix='/admin')
     return app
-
-
-def init_blueprint(app):
-    init_auth(app)
-    init_home(app)
-    init_api_user(app)
-    init_api_admin(app)
-    init_api_user(app)
