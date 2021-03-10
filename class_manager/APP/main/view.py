@@ -6,6 +6,7 @@ from .. import app, db, login_manager
 from flask_login import login_user, logout_user, current_user, login_required
 
 
+# 首页蓝图模块
 # 登录
 @main.route('/login', methods=['POST'])
 def login():

@@ -1,91 +1,44 @@
 import os
 
-BASE_DIR = os.path.dirname(os.path.dirname((os.path.abspath(__file__))))
-TEMPLATE_FOLDER = os.path.join(BASE_DIR, 'templates')
+basedir = os.path.abspath(os.path.dirname(__file__))
 
 
-def get_db_uri(dbconfig):
-    engine = dbconfig.get('ENGINE') or 'mysql'
-    driver = dbconfig.get('DRIVER') or 'pymysql'
-    user = dbconfig.get('USER') or 'root'
-    password = dbconfig.get('PASSWORD') or '1011'
-    host = dbconfig.get('HOST') or 'localhost'
-    port = dbconfig.get('PORT') or '3306'
-    name = dbconfig.get('NAME') or 'classdb'
-    return "{}+{}://{}:{}@{}:{}/{}".format(engine, driver, user, password, host, port, name)
-
-
+# 基类
 class Config:
-    DEBUG_TB_INTERCEPT_REDIRECTS = False
-    DEBUG = False
-    TESTING = False
-    SECRET_KEY = 'AFHIU2fqewkljhfadjsfklfaslf2hio'
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SECRET_KEY = 'one more seconds'
+    SQLALCHEMY_COMMIT_ON_TEARDOWN = True
+    SQLALCHEMY_TRACK_MODIFICATIONS = True
+    FLASKY_MAIL_SUBJECT_PREFIX = '[Flask]'
+    FLASKY_MAIL_SENDER = 'Flask Admin'
+    FLASKY_ADMIN = ['16130120129']  # super admin
+    UPLOADED_PHOTOS_DEST  = os.path.join(basedir,'photos')
+
+    @staticmethod
+    def init_app(app):
+        pass
 
 
-class DevelopConfig(Config):
+# 开发环境
+class DevelopmentConfig(Config):
     DEBUG = True
-    DATABASE = {
-        "ENGINE": 'mysql',
-        'DRIVER': 'pymysql',
-        'USER': 'root',
-        'PASSWORD': '1011',
-        'HOST': 'localhost',
-        'PORT': '3306',
-        'NAME': 'classdb'
-    }
-
-    SQLALCHEMY_DATABASE_URI = get_db_uri(DATABASE)
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:1011@localhost:3306/classdb'
 
 
+# 测试环境
 class TestingConfig(Config):
     TESTING = True
-    DATABASE = {
-        "ENGINE": 'mysql',
-        'DRIVER': 'pymysql',
-        'USER': 'root',
-        'PASSWORD': '1011',
-        'HOST': 'localhost',
-        'PORT': '3306',
-        'NAME': 'classdb'
-
-    }
-    SQLALCHEMY_DATABASE_URI = get_db_uri(DATABASE)
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:1011@localhost:3306/classdb'
 
 
-class StagingConfig(Config):
-    DEBUG = True
-    DATABASE = {
-        "ENGINE": 'mysql',
-        'DRIVER': 'pymysql',
-        'USER': 'root',
-        'PASSWORD': '1011',
-        'HOST': 'localhost',
-        'PORT': '3306',
-        'NAME': 'classdb'
-
-    }
-
-    SQLALCHEMY_DATABASE_URI = get_db_uri(DATABASE)
+# 生产环境
+class ProductionConfig(Config):
+    SQLALCHEMY_DATABASE_URI = 'mysql://root:1011@127.0.0.1:3306/classdb'
 
 
-class ProductConfig(Config):
-    DATABASE = {
-        "ENGINE": 'mysql',
-        'DRIVER': 'pymysql',
-        'USER': 'root',
-        'PASSWORD': '1011',
-        'HOST': 'localhost',
-        'PORT': '3306',
-        'NAME': 'classdb'
-    }
-
-    SQLALCHEMY_DATABASE_URI = get_db_uri(DATABASE)
-
-
-envs = {
-    'develop': DevelopConfig,
+# 设置一个config 字典中,注册了不同的配置环境
+config = {
+    'development': DevelopmentConfig,
     'testing': TestingConfig,
-    'staging': StagingConfig,
-    'product': ProductConfig
+    'production': ProductionConfig,
+    'default': DevelopmentConfig
 }
